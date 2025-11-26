@@ -156,9 +156,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 2px;
+            gap: var(--matrix-gap, 2px);
             opacity: 0;
             transition: opacity 0.5s ease;
+            max-width: 100%;
+            overflow: visible;
         }
         
         .matrix-display.active {
@@ -168,12 +170,12 @@
         .matrix-col {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: var(--matrix-gap, 2px);
         }
         
         .matrix-pixel {
-            width: 4px;
-            height: 4px;
+            width: var(--matrix-pixel, 4px);
+            height: var(--matrix-pixel, 4px);
             background: var(--bg-secondary);
             transition: background 0.1s ease;
         }
@@ -214,13 +216,42 @@
         }
         
         @media (max-width: 600px) {
-            .matrix-pixel {
-                width: 3px;
-                height: 3px;
+            :root {
+                --matrix-pixel: 3px;
+                --matrix-gap: 1px;
             }
             
             .tagline {
                 padding: 0 1rem;
+            }
+            
+            .matrix-display {
+                height: 40px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            :root {
+                --matrix-pixel: 2px;
+                --matrix-gap: 1px;
+            }
+            
+            .matrix-display {
+                height: 30px;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .identifier {
+                font-size: 0.65rem;
+                letter-spacing: 0.3em;
+            }
+            
+            .matrix-trigger {
+                font-size: 0.55rem;
+                padding: 0.75rem 1.5rem;
             }
         }
     </style>
