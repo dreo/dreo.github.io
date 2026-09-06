@@ -47,7 +47,10 @@
     .reveal summary::after { content: "+"; font-size: 16px; font-weight: 400; }
     .reveal[open] summary::after { content: "−"; }
     .reveal summary:hover { color: var(--ink); }
-    .reveal .contact { width: fit-content; min-height: 44px; display: flex; align-items: center; gap: 22px; font-size: 14px; line-height: 1.6; color: var(--ink); text-decoration-thickness: 1px; }
+    .reveal .contact { min-height: 44px; display: flex; align-items: center; color: var(--ink); }
+    .reveal .contact:empty { display: none; }
+    .contact-image { display: block; width: 190px; max-width: 100%; height: auto; }
+    .contact-help { font-size: 12px; line-height: 1.6; color: var(--muted); }
     .reveal[open] .contact { animation: disclose 180ms ease-out; }
     @keyframes disclose { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 600px) { body { padding: 24px 24px 56px; } }
@@ -63,7 +66,6 @@
     h1 span { display: block; }
     .reveal { margin-top: 32px; }
     .reveal summary { color: var(--muted); font-size: 11px; gap: 36px; }
-    .reveal .contact { font-size: 13px; }
     @media (max-width: 800px) { .entry { margin-left: 23%; } }
     @media (max-width: 600px) {
       main { padding: 70px 0 35px; }
@@ -83,8 +85,8 @@
         <h1><span>I make quiet tools</span> <span>for loud problems.</span></h1>
         <details class="reveal">
           <summary>Correspondence</summary>
-          <div id="contact" aria-live="polite"></div>
-          <noscript><p class="contact">Enable JavaScript to reveal the email address.</p></noscript>
+          <div id="contact" class="contact" aria-live="polite"></div>
+          <noscript><p class="contact-help">Enable JavaScript to reveal the email address.</p></noscript>
         </details>
       </div>
     </div>
@@ -94,23 +96,43 @@
       const reveal = document.querySelector('.reveal');
       const contact = document.getElementById('contact');
 
-      // Deter simple source scrapers; this is obfuscation, not access control.
+      // Fixed 95 × 7 artwork: pixel rows, not character codes or an encoded string.
+      // Rendering never constructs text. The image remains recoverable with OCR.
+      const pixels = [
+        [114, 47, 60, 248, 39, 28, 129, 199, 34, 1, 199, 34],
+        [139, 40, 162, 128, 40, 136, 130, 34, 36, 2, 40, 182],
+        [138, 168, 162, 128, 43, 136, 130, 2, 40, 2, 8, 170],
+        [138, 104, 188, 240, 42, 136, 130, 2, 48, 2, 8, 162],
+        [138, 40, 168, 130, 43, 136, 130, 2, 40, 2, 8, 162],
+        [138, 40, 164, 130, 40, 8, 130, 34, 36, 98, 40, 162],
+        [114, 47, 34, 249, 199, 156, 249, 199, 34, 97, 199, 34]
+      ];
+
       reveal.addEventListener('toggle', () => {
         contact.replaceChildren();
         if (!reveal.open) return;
 
-        const encoded = [74, 75, 65, 87, 64, 79, 101, 76, 73, 70, 76, 78, 11, 70, 74, 72];
-        const address = encoded.map(value => String.fromCharCode(value ^ 37)).join('');
-        const link = document.createElement('a');
-        link.className = 'contact';
-        link.href = 'mailto:' + address;
-        link.append(document.createTextNode(address));
+        const canvas = document.createElement('canvas');
+        canvas.className = 'contact-image';
+        canvas.width = 380;
+        canvas.height = 28;
+        canvas.setAttribute('role', 'img');
+        canvas.setAttribute('aria-label', 'Email address shown as a pixel image. Read and type it into your email app.');
 
-        const arrow = document.createElement('span');
-        arrow.setAttribute('aria-hidden', 'true');
-        arrow.textContent = '↗';
-        link.append(arrow);
-        contact.append(link);
+        const context = canvas.getContext('2d');
+        if (!context) {
+          contact.textContent = 'Your browser cannot display the contact image.';
+          return;
+        }
+        context.fillStyle = getComputedStyle(contact).color;
+        for (let row = 0; row < pixels.length; row++) {
+          for (let column = 0; column < 95; column++) {
+            if ((pixels[row][column >> 3] >> (7 - column % 8)) & 1) {
+              context.fillRect(column * 4, row * 4, 3, 3);
+            }
+          }
+        }
+        contact.append(canvas);
       });
     })();
   </script>
