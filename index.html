@@ -83,10 +83,36 @@
         <h1><span>I make quiet tools</span> <span>for loud problems.</span></h1>
         <details class="reveal">
           <summary>Correspondence</summary>
-          <a class="contact" href="mailto:ondrej@ilcik.com">ondrej@ilcik.com <span aria-hidden="true">↗</span></a>
+          <div id="contact" aria-live="polite"></div>
+          <noscript><p class="contact">Enable JavaScript to reveal the email address.</p></noscript>
         </details>
       </div>
     </div>
   </main>
+  <script>
+    (() => {
+      const reveal = document.querySelector('.reveal');
+      const contact = document.getElementById('contact');
+
+      // Deter simple source scrapers; this is obfuscation, not access control.
+      reveal.addEventListener('toggle', () => {
+        contact.replaceChildren();
+        if (!reveal.open) return;
+
+        const encoded = [74, 75, 65, 87, 64, 79, 101, 76, 73, 70, 76, 78, 11, 70, 74, 72];
+        const address = encoded.map(value => String.fromCharCode(value ^ 37)).join('');
+        const link = document.createElement('a');
+        link.className = 'contact';
+        link.href = 'mailto:' + address;
+        link.append(document.createTextNode(address));
+
+        const arrow = document.createElement('span');
+        arrow.setAttribute('aria-hidden', 'true');
+        arrow.textContent = '↗';
+        link.append(arrow);
+        contact.append(link);
+      });
+    })();
+  </script>
 </body>
 </html>
